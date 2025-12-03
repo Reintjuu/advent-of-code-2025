@@ -3,4 +3,6 @@
   <Project Path="Day1/Day1.csproj" />
   <Project Path="Day2.Tests.Unit/Day2.Tests.Unit.csproj" />
   <Project Path="Day2/Day2.csproj" />
+  <Project Path="Day3.Tests.Unit/Day3.Tests.Unit.csproj" />
+  <Project Path="Day3/Day3.csproj" />
 </Solution>
