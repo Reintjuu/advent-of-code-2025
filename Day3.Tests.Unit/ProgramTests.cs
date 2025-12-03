@@ -27,11 +27,11 @@ public class ProgramTests
 	}
 
 	[Fact]
-	public void PartTwoThreeParts()
+	public void PartTwoWithSizeThree()
 	{
-		Assert.Equal(889,
+		Assert.Equal(921,
 			Program.CalculateJoltage([
 				"818181911112111",
-			], 12));
+			], 3));
 	}
 }
