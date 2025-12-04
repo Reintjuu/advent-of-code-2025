@@ -12,66 +12,82 @@ public class Program
 	{
 		var input = await File.ReadAllTextAsync("../../../input");
 
-		string[] rowContent = input.Trim().Split('\n');
+		string[] rowContent = input.Trim().Split(Environment.NewLine);
 
-		// Assignment 1.
-		Console.WriteLine(AmountOfLessThanFourAdjacentPaperRolls(rowContent).Count(isMatch => isMatch));
+		Console.WriteLine(AmountOfLessThanFourAdjacentPaperRollsWithRemovalLoop(rowContent));
 	}
 
 
-	public static IEnumerable<bool> AmountOfLessThanFourAdjacentPaperRolls(string[] rowContent)
+	public static int AmountOfLessThanFourAdjacentPaperRollsWithRemovalLoop(string[] rowContent)
 	{
 		var rows = rowContent.Length;
-		var columns = rowContent[0].Length - 1;
-		Func<int, int, bool> isMatch = (yToCheck, xToCheck) => rowContent[yToCheck][xToCheck] == '@';
+		var columns = rowContent[0].Length;
+		var grid = new char[rows, columns];
 
 		for (var y = 0; y < rows; y++)
 		{
 			for (var x = 0; x < columns; x++)
 			{
-				if (rowContent[y][x] != '@')
+				grid[y, x] = rowContent[y][x];
+			}
+		}
+
+		int totalRollsOfPaperRemoved = 0;
+
+		bool retry = true;
+		while (retry)
+		{
+			int rollsOfPaperRemoved = 0;
+
+			for (var y = 0; y < rows; y++)
+			{
+				for (var x = 0; x < columns; x++)
+				{
+					if (grid[y, x] != '@')
+					{
+						continue;
+					}
+
+					var canRemove = DoesMatchAdjacent(grid, rows, columns, y, x)
+						.Count(b => b) < 4;
+
+					if (!canRemove)
+					{
+						continue;
+					}
+
+					grid[y, x] = '.';
+					rollsOfPaperRemoved++;
+				}
+			}
+
+			if (rollsOfPaperRemoved == 0)
+			{
+				retry = false;
+			}
+
+			totalRollsOfPaperRemoved += rollsOfPaperRemoved;
+		}
+
+		return totalRollsOfPaperRemoved;
+	}
+
+	private static IEnumerable<bool> DoesMatchAdjacent(char[,] grid, int rows, int columns, int y, int x)
+	{
+		for (var yToCheck = y - 1; yToCheck <= y + 1; yToCheck++)
+		{
+			for (var xToCheck = x - 1; xToCheck <= x + 1; xToCheck++)
+			{
+				if (yToCheck == y && xToCheck == x || yToCheck < 0 || yToCheck >= rows || xToCheck < 0 || xToCheck >= columns)
 				{
 					continue;
 				}
 
-				yield return DoesMatchAdjacent(rows, columns, y, x, isMatch).Count(b => b) < 4;
+				if (grid[yToCheck, xToCheck] == '@')
+				{
+					yield return true;
+				}
 			}
 		}
-	}
-
-	private static IEnumerable<bool> DoesMatchAdjacent(int rows, int columns, int y, int x, Func<int, int, bool> noMatch)
-	{
-		// horizontal
-		yield return IsMatch(rows, columns, y, x, (yy, offset) => yy + offset, (xx, _) => xx, noMatch);
-		yield return IsMatch(rows, columns, y, x, (yy, offset) => yy - offset, (xx, _) => xx, noMatch);
-
-		// vertical
-		yield return IsMatch(rows, columns, y, x, (yy, _) => yy, (xx, offset) => xx + offset, noMatch);
-		yield return IsMatch(rows, columns, y, x, (yy, _) => yy, (xx, offset) => xx - offset, noMatch);
-
-		// diagonal
-		yield return IsMatch(rows, columns, y, x, (yy, o) => yy + o, (xx, o) => xx + o, noMatch);
-		yield return IsMatch(rows, columns, y, x, (yy, o) => yy + o, (xx, o) => xx - o, noMatch);
-		yield return IsMatch(rows, columns, y, x, (yy, o) => yy - o, (xx, o) => xx - o, noMatch);
-		yield return IsMatch(rows, columns, y, x, (yy, o) => yy - o, (xx, o) => xx + o, noMatch);
-	}
-
-	private static bool IsMatch(
-		int rows, int columns,
-		int y, int x,
-		Func<int, int, int> yOperation,
-		Func<int, int, int> xOperation,
-		Func<int, int, bool> noMatch)
-	{
-		var yToCheck = yOperation(y, 1);
-		var xToCheck = xOperation(x, 1);
-
-		// Out of bounds.
-		if (yToCheck < 0 || yToCheck >= rows || xToCheck < 0 || xToCheck >= columns)
-		{
-			return false;
-		}
-
-		return noMatch(yToCheck, xToCheck);
 	}
 }

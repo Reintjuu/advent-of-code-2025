@@ -1,14 +1,13 @@
-﻿using System.Linq;
-
-namespace Day4.Tests.Unit;
+﻿namespace Day4.Tests.Unit;
 
 public class ProgramTests
 {
+	// CBA to make this backwards compatible for part one.
 	[Fact]
-	public void PartOne()
+	public void PartTwo()
 	{
-		Assert.Equal(13,
-			Program.AmountOfLessThanFourAdjacentPaperRolls([
+		Assert.Equal(43,
+			Program.AmountOfLessThanFourAdjacentPaperRollsWithRemovalLoop([
 				"..@@.@@@@.",
 				"@@@.@.@.@@",
 				"@@@@@.@.@@",
@@ -19,7 +18,6 @@ public class ProgramTests
 				"@.@@@.@@@@",
 				".@@@@@@@@.",
 				"@.@.@@@.@."
-			])
-			.Count(x => x));
+			]));
 	}
 }
