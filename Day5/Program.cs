@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -26,19 +25,21 @@ public class Program
 			.OrderBy(r => r.Start)
 			.ToList();
 
-		var merged = new List<(long Start, long End)>();
-		foreach (var currentRange in ranges)
-		{
-			if (merged.Count == 0 || currentRange.Start > merged[^1].End + 1)
-			{
-				merged.Add(currentRange);
-			}
-			else
-			{
-				var last = merged[^1];
-				merged[^1] = (last.Start, Math.Max(last.End, currentRange.End));
-			}
-		}
+		var total = ranges
+			.Aggregate((Total: 0L, PreviousEnd: long.MinValue),
+				(accumulator, currentRange) =>
+				{
+					if (currentRange.End <= accumulator.PreviousEnd)
+					{
+						return accumulator;
+					}
+
+					var start = Math.Max(accumulator.PreviousEnd + 1, currentRange.Start);
+					var length = currentRange.End - start + 1;
+
+					return (accumulator.Total + length, currentRange.End);
+				})
+			.Total;
 
 		var currentFreshIngredients = allLines
 			.SkipWhile(s => s != listDelimiter)
@@ -46,6 +47,6 @@ public class Program
 			.Select(long.Parse)
 			.Count(ingredient => ranges.Any(v => ingredient >= v.Start && ingredient <= v.End));
 
-		return (currentFreshIngredients, merged.Sum(r => r.End - r.Start + 1));
+		return (currentFreshIngredients, total);
 	}
 }
