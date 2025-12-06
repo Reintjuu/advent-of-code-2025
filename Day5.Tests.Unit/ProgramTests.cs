@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Day5.Tests.Unit;
+﻿namespace Day5.Tests.Unit;
 
 public class ProgramTests
 {
